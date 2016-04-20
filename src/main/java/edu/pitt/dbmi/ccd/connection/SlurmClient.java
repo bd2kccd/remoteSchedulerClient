@@ -4,9 +4,10 @@ import edu.pitt.dbmi.ccd.connection.slurm.JobStatus;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 
 import java.io.File;
-import java.io.StringWriter;
+import java.io.FileWriter;
 import java.util.*;
 
 /**
@@ -17,10 +18,11 @@ public class SlurmClient implements SchedulerClient {
 
 
     // TODO:
-    public int submitJob(String jobTemplateName, Properties jobProperties) throws Exception {
+    public int submitJob(String jobTemplateName, Properties jobProperties, String remoteFileName) throws Exception {
 
         // create the job file needed for the run
         VelocityEngine ve = new VelocityEngine();
+        ve.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, Configuration.getInstance().getTemplatePath());
         ve.init();
 
         // get the Template  */
@@ -31,37 +33,36 @@ public class SlurmClient implements SchedulerClient {
         Enumeration e = jobProperties.propertyNames();
 
         while (e.hasMoreElements()) {
-          String key = (String) e.nextElement();
+            String key = (String) e.nextElement();
             context.put(key, jobProperties.getProperty(key));
         }
 
         // now render the template into a StringWriter */
-        StringWriter writer = new StringWriter();
+        String outputFilename = Configuration.getInstance().getScratchDirectory() + File.separator + System.currentTimeMillis() + ".sh";
+
+        // save the output to a file
+        FileWriter writer = new FileWriter(outputFilename);
         t.merge(context, writer);
-
-
-        // TODO: and save the output to a file
-
-
+        writer.flush();
+        writer.close();
 
 
         // TODO: upload the job file
-
-        String remoteBatchFile = "";
-
-
-
-
-        // submit the job file which returns and id
         SshConnection sshConn = SshConnection.getInstance();
 
         sshConn.connect();
-        String squeueResult = sshConn.executeCommand("sbatch " + remoteBatchFile);
-
+        sshConn.sendFile(outputFilename, remoteFileName);
         sshConn.close();
 
+        sshConn.connect();
+        String sbatchResult = sshConn.executeCommand("sbatch " + remoteFileName);
+        String jobId = "";
+        if (sbatchResult.contains("Submitted batch job ")) {
+            jobId = sbatchResult.substring("Submitted batch job ".length(), sbatchResult.length() - 1);
+        }
+        sshConn.close();
 
-        return 0;
+        return Integer.parseInt(jobId);
     }
 
     public void submitDirectJob(String command, String args) throws Exception {
@@ -125,8 +126,8 @@ public class SlurmClient implements SchedulerClient {
 
     private JobStatus line2JobStatus(String line) {
 
-        System.out.println(line);
-        System.out.flush();
+        //System.out.println(line);
+        //System.out.flush();
         line = line.trim();
         String elements[] = line.split("\\s+");
 

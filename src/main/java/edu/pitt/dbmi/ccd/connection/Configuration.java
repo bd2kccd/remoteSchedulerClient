@@ -2,7 +2,6 @@ package edu.pitt.dbmi.ccd.connection;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.Properties;
 
 /**
@@ -18,6 +17,8 @@ public class Configuration {
     private String hostname;
     private int port;
     private boolean logging;
+    private String templatePath;
+    private String scratchDirectory;
 
     private static Configuration ourInstance = new Configuration();
     public  String knownHosts;
@@ -60,6 +61,8 @@ public class Configuration {
             port = Integer.parseInt(prop.getProperty("port"));
             logging = prop.getProperty("logging").equalsIgnoreCase("true");
             knownHosts = prop.getProperty("known_hosts");
+            templatePath = prop.getProperty("template_path");
+            scratchDirectory = prop.getProperty("scratch_directory");
 
         } catch (Exception e) {
             System.out.println("Exception: " + e);
@@ -99,6 +102,14 @@ public class Configuration {
 
     public String getKnownHosts() {
         return knownHosts;
+    }
+
+    public String getTemplatePath() {
+        return templatePath;
+    }
+
+    public String getScratchDirectory() {
+        return scratchDirectory;
     }
 }
 

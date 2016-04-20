@@ -10,8 +10,6 @@ public interface Connection {
 
     void close();
 
-    String getScratchDir();
-
     String executeCommand(String command) throws Exception;
 
     boolean mkDir(String directoryName) throws Exception;

@@ -12,7 +12,7 @@ import java.util.Properties;
 public interface SchedulerClient {
     public void submitDirectJob(String cmd, String args) throws Exception;
 
-    public int submitJob(String jobTemplateName, Properties jobProperties) throws Exception;
+    public int submitJob(String jobTemplateName, Properties jobProperties, String remoteFileName) throws Exception;
 
     public List<JobStatus> getQueueStatus() throws Exception;
 

@@ -75,10 +75,6 @@ public class SshConnection implements Connection {
 
     }
 
-    public String getScratchDir() {
-        return null;
-    }
-
     public String executeCommand(String command) throws Exception {
 
         Channel channel = session.openChannel("exec");
@@ -193,7 +189,7 @@ public class SshConnection implements Connection {
         File _lfile = new File(localFilename);
 
         if (ptimestamp) {
-            command = "T " + (_lfile.lastModified() / 1000) + " 0";
+            command = "T" + (_lfile.lastModified() / 1000) + " 0";
             // The access time should be sent here,
             // but it is not accessible with JavaAPI ;-<
             command += (" " + (_lfile.lastModified() / 1000) + " 0\n");
