@@ -10,7 +10,6 @@ import java.util.Properties;
  * Created  4/1/16 11:41 AM
  */
 public interface SchedulerClient {
-    public void submitDirectJob(String cmd, String args) throws Exception;
 
     public int submitJob(String jobTemplateName, Properties jobProperties, String remoteFileName) throws Exception;
 
@@ -18,4 +17,5 @@ public interface SchedulerClient {
 
     public JobStatus getStatus(int jobId) throws Exception;
 
+    public void cancelJob(int jobId) throws Exception;
 }

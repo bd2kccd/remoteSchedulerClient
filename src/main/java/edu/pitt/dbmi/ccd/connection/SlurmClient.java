@@ -47,13 +47,13 @@ public class SlurmClient implements SchedulerClient {
         writer.close();
 
 
-        // TODO: upload the job file
+        // upload the job file
         SshConnection sshConn = SshConnection.getInstance();
-
         sshConn.connect();
         sshConn.sendFile(outputFilename, remoteFileName);
         sshConn.close();
 
+        // submit job
         sshConn.connect();
         String sbatchResult = sshConn.executeCommand("sbatch " + remoteFileName);
         String jobId = "";
@@ -65,9 +65,6 @@ public class SlurmClient implements SchedulerClient {
         return Integer.parseInt(jobId);
     }
 
-    public void submitDirectJob(String command, String args) throws Exception {
-
-    }
 
     public List<JobStatus> getQueueStatus() throws Exception {
         SshConnection sshConn = SshConnection.getInstance();
@@ -91,7 +88,23 @@ public class SlurmClient implements SchedulerClient {
 
         sshConn.close();
 
-        return str2JobStatuses(squeueResult).get(0);
+        List<JobStatus> jobStatuses = str2JobStatuses(squeueResult);
+
+        if (jobStatuses != null && jobStatuses.size() > 0) {
+            return jobStatuses.get(0);
+        }
+
+        return null;
+
+    }
+
+    public void cancelJob(int jobId) throws Exception {
+        SshConnection sshConn = SshConnection.getInstance();
+
+        sshConn.connect();
+        sshConn.executeCommand("scancel " + jobId);
+
+        sshConn.close();
 
     }
 
