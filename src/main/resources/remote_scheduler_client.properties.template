@@ -6,3 +6,5 @@ hostname=
 port=
 logging=
 known_hosts=
+template_path=
+scratch_directory=
