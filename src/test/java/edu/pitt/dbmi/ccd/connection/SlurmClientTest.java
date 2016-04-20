@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -16,15 +17,20 @@ import static org.junit.Assert.*;
  */
 public class SlurmClientTest {
 
+    private static int jobId;
+
     @Test
     public void testSubmitJob() throws Exception {
 
+        SlurmClient client = new SlurmClient();
+
+        Properties p = new Properties();
+
+        p.setProperty("inputFile", "Retention.txt");
+        jobId = client.submitJob("simpleFgs.vm", p, "~/testremotefile.sh");
+
     }
 
-    @Test
-    public void testSubmitDirectJob() throws Exception {
-
-    }
 
     @Test
     public void testGetQueueStatus() throws Exception {
@@ -33,8 +39,6 @@ public class SlurmClientTest {
         List<JobStatus> jobStatuses = client.getQueueStatus();
         for (JobStatus j: jobStatuses ) {
             System.out.println(j.toString());
-
-
         }
 
 
@@ -45,9 +49,23 @@ public class SlurmClientTest {
     public void testGetStatus() throws Exception {
 
         SlurmClient client = new SlurmClient();
-        System.out.println(client.getStatus(111407).toString());
+
+        System.out.println(client.getStatus(jobId).toString());
 
     }
+
+    @Test
+    public void testCancelJob() throws Exception {
+
+        SlurmClient client = new SlurmClient();
+        client.cancelJob(jobId);
+
+        assertNull(client.getStatus(jobId));
+
+
+    }
+
+
 
     @Before
     public void setUp() throws Exception {
@@ -61,4 +79,7 @@ public class SlurmClientTest {
 
         SshConnection.getInstance().close();
     }
+
+
+
 }
