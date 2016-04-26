@@ -1,6 +1,7 @@
 package edu.pitt.dbmi.ccd.connection;
 
 import com.jcraft.jsch.*;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
@@ -10,11 +11,13 @@ import java.io.*;
  */
 public class SshConnection implements Connection {
 
+    static final org.slf4j.Logger logger = LoggerFactory.getLogger(SshConnection.class);
+
     private String host;
     private String username;
     private String password;
     private String privateKey;
-    private int port = 22;
+    private int port;
     private String passphrase;
     private String knownHosts;
 
@@ -23,7 +26,11 @@ public class SshConnection implements Connection {
 
     private static SshConnection theInstance = null;
 
-
+    /**
+     * Singleton method to get the global instance
+     *
+     * @return
+     */
     public static SshConnection getInstance() {
 
         if (theInstance == null) theInstance = new SshConnection();
@@ -40,6 +47,7 @@ public class SshConnection implements Connection {
         this.privateKey = configuration.getPublic_key_file();
         this.passphrase = configuration.getPassphrase();
         this.knownHosts = configuration.getKnownHosts();
+        this.port = configuration.getPort();
 
         if (configuration.isLogging()) {
             JSch.setLogger(new MyLogger());
@@ -49,18 +57,24 @@ public class SshConnection implements Connection {
 
     }
 
-
+    /**
+     * Connect to the remote system
+     *
+     * @throws Exception
+     */
     public void connect() throws Exception {
 
         jsch.setKnownHosts(knownHosts);
-        jsch.addIdentity(privateKey);
+        //jsch.addIdentity(privateKey);
 
 
         session = jsch.getSession(username, host, port);
 
+        session.setConfig("StrictHostKeyChecking", "no");
+
 
         UserInfoImpl ui = new UserInfoImpl();
-        ui.setPassphrase(passphrase);
+        //ui.setPassphrase(passphrase);
         ui.setPassword(password);
         session.setUserInfo(ui);
 
@@ -69,22 +83,32 @@ public class SshConnection implements Connection {
 
     }
 
+    /**
+     * Close the remote connection
+     *
+     */
     public void close() {
 
         session.disconnect();
 
     }
 
+    /**
+     * Execute a command on remote system.  Must connect first.
+     *
+     * @param command
+     * @return
+     * @throws Exception
+     */
     public String executeCommand(String command) throws Exception {
 
-        Channel channel = session.openChannel("exec");
-        ((ChannelExec) channel).setCommand(command);
+        ChannelExec channel = (ChannelExec) session.openChannel("exec");
+        channel.setCommand(command);
 
         channel.setInputStream(null);
 
-        ((ChannelExec) channel).setErrStream(System.err);
-
         InputStream in = channel.getInputStream();
+        InputStream stderr = ((ChannelExec) channel).getErrStream();
 
         channel.connect();
 
@@ -96,16 +120,24 @@ public class SshConnection implements Connection {
                 if (i < 0) break;
                 output.append(new String(tmp, 0, i));
             }
+
             if (channel.isClosed()) {
                 if (in.available() > 0) continue;
-                if (channel.getExitStatus() != 0) throw new Exception("Command executed with errors");
-                // System.out.println("exit-status: " + channel.getExitStatus());
+                if (channel.getExitStatus() != 0) {
+                    StringBuffer result = new StringBuffer();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stderr));
+                    readAll(bufferedReader, result);
+                    logger.error(result.toString());
+                    throw new Exception(result.toString());
+                }
+
                 break;
             }
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (Exception e) {
+                logger.error("Error when executing command " + command, e);
             }
 
         }
@@ -113,6 +145,20 @@ public class SshConnection implements Connection {
         return output.toString();
     }
 
+    private void readAll(BufferedReader bufferedReader, StringBuffer result) throws Exception {
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            result.append(line);
+        }
+    }
+
+    /**
+     * Make a remote directory
+     *
+     * @param path
+     * @return
+     * @throws Exception
+     */
     public boolean mkDir(String path) throws Exception {
 
         Channel channel = session.openChannel("sftp");
@@ -123,16 +169,12 @@ public class SshConnection implements Connection {
         try {
             c.mkdir(path);
         } catch (SftpException e) {
-            // TODO: log
-            //System.out.println(e.toString());
-            //System.out.println("exit-status: " + channel.getExitStatus());
+            logger.error("exit-status: " + channel.getExitStatus(), e);
             return false;
         }
 
         if (channel.isClosed()) {
-            // TODO: log
-            //System.out.println("exit-status: " + channel.getExitStatus());
-
+            logger.warn("Channel already closed - exit-status: " + channel.getExitStatus());
         }
 
         return true;
@@ -158,10 +200,10 @@ public class SshConnection implements Connection {
             }
             while (c != '\n');
             if (b == 1) { // error
-                System.out.print(sb.toString());
+                logger.error(sb.toString());
             }
             if (b == 2) { // fatal error
-                System.out.print(sb.toString());
+                logger.error(sb.toString());
             }
         }
         return b;
@@ -183,7 +225,7 @@ public class SshConnection implements Connection {
         channel.connect();
 
         if (checkAck(in) != 0) {
-            System.exit(0);
+            throw new Exception("Error in transfer of data");
         }
 
         File _lfile = new File(localFilename);
@@ -196,7 +238,7 @@ public class SshConnection implements Connection {
             out.write(command.getBytes());
             out.flush();
             if (checkAck(in) != 0) {
-                System.exit(0);
+                throw new Exception("Error in transfer of data");
             }
         }
 
@@ -212,7 +254,7 @@ public class SshConnection implements Connection {
         out.write(command.getBytes());
         out.flush();
         if (checkAck(in) != 0) {
-            System.exit(0);
+            throw new Exception("Error in transfer of data");
         }
 
         // send a content of lfile
@@ -230,7 +272,7 @@ public class SshConnection implements Connection {
         out.write(buf, 0, 1);
         out.flush();
         if (checkAck(in) != 0) {
-            System.exit(0);
+            throw new Exception("Error in transfer of data");
         }
         out.close();
 
@@ -244,16 +286,6 @@ public class SshConnection implements Connection {
 
     }
 
-    public static void main(String[] args) throws Exception {
-
-        SshConnection sshConnection = new SshConnection();
-        sshConnection.connect();
-        System.out.println(sshConnection.executeCommand("squeue"));
-        sshConnection.executeCommand("date");
-        sshConnection.mkDir("/home/jue/test1234");
-        sshConnection.close();
-
-    }
 
 
 }

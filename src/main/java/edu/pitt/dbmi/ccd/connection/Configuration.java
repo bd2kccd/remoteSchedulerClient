@@ -1,5 +1,8 @@
 package edu.pitt.dbmi.ccd.connection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -9,6 +12,8 @@ import java.util.Properties;
  * Created  4/7/16 2:41 PM
  */
 public class Configuration {
+
+    final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     private String username;
     private String password;
@@ -21,7 +26,7 @@ public class Configuration {
     private String scratchDirectory;
 
     private static Configuration ourInstance = new Configuration();
-    public  String knownHosts;
+    public String knownHosts;
 
     public static Configuration getInstance() {
         return ourInstance;
@@ -32,7 +37,7 @@ public class Configuration {
         try {
             getProperties();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Unable to get properties for configuration", e);
         }
     }
 
@@ -65,7 +70,7 @@ public class Configuration {
             scratchDirectory = prop.getProperty("scratch_directory");
 
         } catch (Exception e) {
-            System.out.println("Exception: " + e);
+            logger.error("Unable to read remote_scheduler_client.properties", e);
         } finally {
             if (inputStream != null) inputStream.close();
         }

@@ -5,11 +5,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Author : Jeremy Espino MD
@@ -29,6 +29,9 @@ public class SlurmClientTest {
         p.setProperty("inputFile", "Retention.txt");
         jobId = client.submitJob("simpleFgs.vm", p, "~/testremotefile.sh");
 
+        System.out.println("job id " + jobId);
+
+
     }
 
 
@@ -37,10 +40,9 @@ public class SlurmClientTest {
 
         SlurmClient client = new SlurmClient();
         List<JobStatus> jobStatuses = client.getQueueStatus();
-        for (JobStatus j: jobStatuses ) {
+        for (JobStatus j : jobStatuses) {
             System.out.println(j.toString());
         }
-
 
 
     }
@@ -50,8 +52,13 @@ public class SlurmClientTest {
 
         SlurmClient client = new SlurmClient();
 
-        System.out.println(client.getStatus(jobId).toString());
+        JobStatus js = client.getStatus(jobId);
 
+        assertNotNull(js);
+
+        if (js != null) {
+            System.out.println(js.toString());
+        }
     }
 
     @Test
@@ -60,11 +67,10 @@ public class SlurmClientTest {
         SlurmClient client = new SlurmClient();
         client.cancelJob(jobId);
 
-        assertNull(client.getStatus(jobId));
+        //assertNull(client.getStatus(jobId));
 
 
     }
-
 
 
     @Before
@@ -79,7 +85,6 @@ public class SlurmClientTest {
 
         SshConnection.getInstance().close();
     }
-
 
 
 }
