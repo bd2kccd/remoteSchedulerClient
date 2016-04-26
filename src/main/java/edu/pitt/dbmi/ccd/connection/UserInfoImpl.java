@@ -8,43 +8,38 @@ import com.jcraft.jsch.UserInfo;
  * Created  4/1/16 2:50 PM
  */
 public class UserInfoImpl implements UserInfo {
+    String password = null;
 
-    private String passphrase;
-    private String password;
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setPassphrase(String passphrase) {
-        this.passphrase = passphrase;
-    }
-
+    @Override
     public String getPassphrase() {
-        return passphrase;
+        return null;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
 
-    public boolean promptPassword(String s) {
+    public void setPassword(String passwd) {
+        password = passwd;
+    }
+
+    @Override
+    public boolean promptPassphrase(String message) {
+        return false;
+    }
+
+    @Override
+    public boolean promptPassword(String message) {
+        return false;
+    }
+
+    @Override
+    public boolean promptYesNo(String message) {
         return true;
     }
 
-    public boolean promptPassphrase(String s) {
-        return true;
+    @Override
+    public void showMessage(String message) {
     }
-
-    public boolean promptYesNo(String s) {
-        System.out.println(s);
-        return true;
-    }
-
-    public void showMessage(String s) {
-        System.out.println(s);
-
-    }
-
-
 }

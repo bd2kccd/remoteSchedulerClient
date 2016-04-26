@@ -64,22 +64,14 @@ public class SshConnection implements Connection {
      */
     public void connect() throws Exception {
 
-        jsch.setKnownHosts(knownHosts);
-        //jsch.addIdentity(privateKey);
-
-
         session = jsch.getSession(username, host, port);
-
         session.setConfig("StrictHostKeyChecking", "no");
-
+        session.setPassword(password);
 
         UserInfoImpl ui = new UserInfoImpl();
-        //ui.setPassphrase(passphrase);
-        ui.setPassword(password);
         session.setUserInfo(ui);
 
         session.connect();
-
 
     }
 
