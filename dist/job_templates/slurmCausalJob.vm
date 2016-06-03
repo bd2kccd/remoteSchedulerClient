@@ -1,0 +1,28 @@
+#!/bin/sh
+#SBATCH --partition=RM
+#SBATCH --time=00:15:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=8
+#SBATCH --mem=120G
+# Memory per node specification is in MB. It is optional.
+# The default limit is 3000MB per core.
+#SBATCH --job-name="causal-cmd "$causalUser
+#SBATCH --output=causal-cmd-srun.out
+#SBATCH --mail-user=$email
+#SBATCH --mail-type=ALL
+#Specifies that the job will be requeued after a node failure.
+#The default is that the job will not be requeued.
+echo "SLURM_JOBID="\\$SLURM_JOBID
+echo "SLURM_JOB_NODELIST"=\\$SLURM_JOB_NODELIST
+echo "SLURM_NNODES"=\\$SLURM_NNODES
+echo "SLURMTMPDIR="\\$SLURMTMPDIR
+
+echo "working directory = "\\$SLURM_SUBMIT_DIR
+
+module load java7
+module list
+ulimit -s unlimited
+# The initial srun will trigger the SLURM prologue on the compute nodes.
+echo "Launch causal-cmd "$causalUser
+$cmd
+echo "All Done!"

@@ -11,11 +11,16 @@ import java.util.Properties;
  */
 public interface SchedulerClient {
 
-    public int submitJob(String jobTemplateName, Properties jobProperties, String remoteFileName) throws Exception;
+	public void downloadOutput(String remoteOutput, String localDestination) throws Exception;
+	
+	public void uploadDataset(String dataDirTemplateName, Properties dataProperties, 
+    		String remoteScriptFileName, String localSource, String remoteDestination) throws Exception;
+	
+    public long submitJob(String jobTemplateName, Properties jobProperties, String remoteFileName) throws Exception;
 
     public List<JobStatus> getQueueStatus() throws Exception;
 
-    public JobStatus getStatus(int jobId) throws Exception;
+    public JobStatus getStatus(long jobId) throws Exception;
 
-    public void cancelJob(int jobId) throws Exception;
+    public void cancelJob(long jobId) throws Exception;
 }

@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNull;
  */
 public class SlurmClientTest {
 
-    private static int jobId;
+    private static long jobId;
 
     @Test
     public void testSubmitJob() throws Exception {
@@ -27,7 +27,9 @@ public class SlurmClientTest {
         Properties p = new Properties();
 
         p.setProperty("inputFile", "Retention.txt");
-        jobId = client.submitJob("simpleFgs.vm", p, "~/testremotefile.sh");
+        jobId = client.submitJob(
+        		"/Users/chw20/Documents/DBMI/remoteSchedulerClient/dist/job_templates/simpleFgs.vm", 
+        		p, "~/testremotefile.sh");
 
         System.out.println("job id " + jobId);
 

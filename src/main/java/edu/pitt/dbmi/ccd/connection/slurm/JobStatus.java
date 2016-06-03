@@ -9,11 +9,11 @@ public class JobStatus {
     String partition;
     String name;
     String user;
-    String string;
+    String state;
     String time;
     String nodes;
     String nodelist;
-
+    
     @Override
     public String toString() {
         return "JobStatus{" +
@@ -21,13 +21,12 @@ public class JobStatus {
                 ", partition='" + partition + '\'' +
                 ", name='" + name + '\'' +
                 ", user='" + user + '\'' +
-                ", string='" + string + '\'' +
+                ", state='" + state + '\'' +
                 ", time='" + time + '\'' +
                 ", nodes=" + nodes +
                 ", nodelist='" + nodelist + '\'' +
                 '}';
     }
-
 
     public String getJobId() {
         return jobId;
@@ -70,12 +69,12 @@ public class JobStatus {
         this.partition = partition;
     }
 
-    public String getString() {
-        return string;
+    public String getState() {
+        return state;
     }
 
-    public void setString(String string) {
-        this.string = string;
+    public void setState(String state) {
+        this.state = state;
     }
 
     public String getTime() {

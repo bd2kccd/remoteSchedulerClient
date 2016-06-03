@@ -1,0 +1,42 @@
+#!/bin/sh
+
+USER=$(whoami)
+GROUP=$(id -Gn)
+BASE=/home/$USER
+PYLON=/pylon1
+
+# User High-perforamce Workspace
+USERPATH=$PYLON/$GROUP/$USER/$causalUser
+if [ ! -d "$USERPATH" ]; then
+	mkdir "$USERPATH"
+fi
+
+# User High-perforamce Data Workspace
+DATAPATH=$PYLON/$GROUP/$USER/$causalUser/data
+if [ ! -d "$DATAPATH" ]; then
+	mkdir "$DATAPATH"
+fi
+
+# Causal User Workspace
+CAUSALPATH=$BASE/causal-cmd/$causalUser
+if [ ! -d "$CAUSALPATH" ]; then
+	mkdir "$CAUSALPATH"
+fi
+
+# Temp Folder
+TMPPATH=$CAUSALPATH/$tmp
+if [ ! -d "$TMPPATH" ]; then
+	mkdir "$TMPPATH"
+fi
+
+# Results Folder
+RESULTSPATH=$CAUSALPATH/$results
+if [ ! -d "$RESULTSPATH" ]; then
+	mkdir "$RESULTSPATH"
+fi
+
+# Algorithm Folder
+ALGORPATH=$RESULTSPATH/$algorithm
+if [ ! -d "$ALGORPATH" ]; then
+	mkdir "$ALGORPATH"
+fi
