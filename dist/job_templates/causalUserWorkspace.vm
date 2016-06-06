@@ -28,15 +28,3 @@ TMPPATH=$CAUSALPATH/$tmp
 if [ ! -d "$TMPPATH" ]; then
 	mkdir "$TMPPATH"
 fi
-
-# Results Folder
-RESULTSPATH=$CAUSALPATH/$results
-if [ ! -d "$RESULTSPATH" ]; then
-	mkdir "$RESULTSPATH"
-fi
-
-# Algorithm Folder
-ALGORPATH=$RESULTSPATH/$algorithm
-if [ ! -d "$ALGORPATH" ]; then
-	mkdir "$ALGORPATH"
-fi
