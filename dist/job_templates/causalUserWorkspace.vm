@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# PSC-specific Configurations
 USER=$(whoami)
 GROUP=$(id -Gn)
 BASE=/home/$USER

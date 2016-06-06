@@ -18,6 +18,8 @@ public interface SchedulerClient {
 	
     public long submitJob(String jobTemplateName, Properties jobProperties, String remoteFileName) throws Exception;
 
+    public boolean remoteFileExisted(String remoteFileName);
+    
     public List<JobStatus> getQueueStatus() throws Exception;
 
     public JobStatus getStatus(long jobId) throws Exception;

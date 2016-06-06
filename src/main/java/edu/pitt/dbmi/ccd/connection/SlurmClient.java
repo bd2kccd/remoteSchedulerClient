@@ -166,6 +166,11 @@ public class SlurmClient implements SchedulerClient {
         return Long.parseLong(jobId);
     }
 
+    /**
+     * @param remoteFileName
+     * @return True if file exists
+     * @throws Exception
+     */
     public boolean remoteFileExisted(String remoteFileName) {
     	SshConnection sshConn = SshConnection.getInstance();
 
