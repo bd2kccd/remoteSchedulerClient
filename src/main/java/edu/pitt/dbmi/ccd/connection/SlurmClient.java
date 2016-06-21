@@ -1,5 +1,6 @@
 package edu.pitt.dbmi.ccd.connection;
 
+import edu.pitt.dbmi.ccd.connection.slurm.JobStat;
 import edu.pitt.dbmi.ccd.connection.slurm.JobStatus;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -7,22 +8,36 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
 /**
  * Author : Jeremy Espino MD
  * Created  4/1/16 11:50 AM
+ * Author : Chirayu (Kong) Wongchokprasitti, PhD 
+ * Modified 6/21/16 2:21 PM
  */
 public class SlurmClient implements SchedulerClient {
 
     final Logger logger = LoggerFactory.getLogger(SchedulerClient.class);
 
+    final private VelocityEngine ve;
+    
+    final private SshConnection sshConn;
+    
+    public SlurmClient() {
+    	ve = new VelocityEngine();
+        ve.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, Configuration.getInstance().getTemplatePath());
+        ve.init();
+        
+    	this.sshConn = SshConnection.getInstance();
+    }
     
     /**
      * @param remoteOutput
@@ -30,12 +45,8 @@ public class SlurmClient implements SchedulerClient {
      * @throws Exception
      */
     public void downloadOutput(String remoteOutput, String localDestination) throws Exception {
-        // upload the check data space script file
-        SshConnection sshConn = SshConnection.getInstance();
-        sshConn.connect();
+    	sshConn.connect();
         sshConn.receiveFile(remoteOutput, localDestination);
-        sshConn.close();
-    	
      }
     
     /**
@@ -50,57 +61,50 @@ public class SlurmClient implements SchedulerClient {
     		String remoteScriptFileName, String localSource, String remoteDestination) throws Exception {
     	
     	//Script to create a user space if not existing
-        // create the job file needed for the run
-        VelocityEngine ve = new VelocityEngine();
-        ve.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, Configuration.getInstance().getTemplatePath());
-        ve.init();
+    	if(!remoteFileExisted(remoteScriptFileName)){
 
-        // get the Template  */
-        Template t = ve.getTemplate(dataDirTemplateName);
+            // get the Template  */
+            Template t = ve.getTemplate(dataDirTemplateName);
 
-        // create context and add variables
-        VelocityContext context = new VelocityContext();
-        Enumeration e = dataProperties.propertyNames();
+            // create context and add variables
+            VelocityContext context = new VelocityContext();
+            Enumeration e = dataProperties.propertyNames();
 
-        while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
-            context.put(key, dataProperties.getProperty(key));
-        }
+            while (e.hasMoreElements()) {
+                String key = (String) e.nextElement();
+                context.put(key, dataProperties.getProperty(key));
+            }
 
-        // now render the template into a StringWriter */
-        String outputFilename = Configuration.getInstance().getScratchDirectory() + File.separator + System.currentTimeMillis() + ".sh";
+            // now render the template into a StringWriter */
+            String outputFilename = Configuration.getInstance().getScratchDirectory() + File.separator + System.currentTimeMillis() + ".sh";
+        	
+            // save the output to a file
+            FileWriter writer = new FileWriter(outputFilename);
+            t.merge(context, writer);
+            writer.flush();
+            writer.close();
+
+            // upload the check data space script file
+            sshConn.connect();
+            sshConn.sendFile(outputFilename, remoteScriptFileName);
+        	
+            // Delete a temp file
+            try {
+    			Files.deleteIfExists(Paths.get(outputFilename));
+    		} catch (Exception e1) {
+    			// TODO Auto-generated catch block
+    			e1.printStackTrace();
+    		}
+            
+            // run a script
+            sshConn.connect();
+            String scriptResult = sshConn.executeCommand("sh " + remoteScriptFileName);
+            logger.debug(scriptResult);
+    	}
     	
-        // save the output to a file
-        FileWriter writer = new FileWriter(outputFilename);
-        t.merge(context, writer);
-        writer.flush();
-        writer.close();
-
-        // upload the check data space script file
-        SshConnection sshConn = SshConnection.getInstance();
-        sshConn.connect();
-        sshConn.sendFile(outputFilename, remoteScriptFileName);
-        sshConn.close();
-    	
-        // Delete a temp file
-        try {
-			Files.deleteIfExists(Paths.get(outputFilename));
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-        
-        // run a script
-        sshConn.connect();
-        String scriptResult = sshConn.executeCommand("sh " + remoteScriptFileName);
-        System.out.println(scriptResult);
-        sshConn.close();
-
         // upload the dataset
         sshConn.connect();
         sshConn.sendFile(localSource, remoteDestination);
-        sshConn.close();
-
     }
     
     /**
@@ -111,11 +115,6 @@ public class SlurmClient implements SchedulerClient {
      * @throws Exception
      */
     public long submitJob(String jobTemplateName, Properties jobProperties, String remoteScriptFileName) throws Exception {
-
-        // create the job file needed for the run
-        VelocityEngine ve = new VelocityEngine();
-        ve.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, Configuration.getInstance().getTemplatePath());
-        ve.init();
 
         // get the Template  */
         Template t = ve.getTemplate(jobTemplateName);
@@ -139,10 +138,8 @@ public class SlurmClient implements SchedulerClient {
         writer.close();
 
         // upload the job file
-        SshConnection sshConn = SshConnection.getInstance();
         sshConn.connect();
         sshConn.sendFile(outputFilename, remoteScriptFileName);
-        sshConn.close();
 
         // Delete a temp file
         try {
@@ -159,9 +156,8 @@ public class SlurmClient implements SchedulerClient {
         if (sbatchResult.contains("Submitted batch job ")) {
             jobId = sbatchResult.substring("Submitted batch job ".length(), sbatchResult.length() - 1);
         }
-        sshConn.close();
 
-        logger.info("Submitted script and assigned job id: " + jobId);
+        logger.debug("Submitted script and assigned job id: " + jobId);
 
         return Long.parseLong(jobId);
     }
@@ -172,23 +168,37 @@ public class SlurmClient implements SchedulerClient {
      * @throws Exception
      */
     public boolean remoteFileExisted(String remoteFileName) {
-    	SshConnection sshConn = SshConnection.getInstance();
 
         String lsResult;
 		try {
 	        sshConn.connect();
 			lsResult = sshConn.executeCommand("ls " + remoteFileName);
-	        logger.info("lsResult: " + lsResult);
-	        sshConn.close();
+			logger.debug("lsResult: " + lsResult);
 	        return true;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			sshConn.close();
 			return false;
 		}
         
     }
     
+    /**
+     * @param remoteFileName
+     * @return True if file exists
+     * @throws Exception
+     */
+    public boolean deleteRemoteFile(String remoteFileName) {
+
+		try {
+	        sshConn.connect();
+			sshConn.executeCommand("rm " + remoteFileName);
+	        return true;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return false;
+		}
+        
+    }
     
     /**
      * Retrieve a list of all jobs on the remote system
@@ -197,14 +207,11 @@ public class SlurmClient implements SchedulerClient {
      * @throws Exception
      */
     public List<JobStatus> getQueueStatus() throws Exception {
-        SshConnection sshConn = SshConnection.getInstance();
 
         sshConn.connect();
         String squeueResult = sshConn.executeCommand("squeue");
-        sshConn.close();
 
         return str2JobStatuses(squeueResult);
-
     }
 
     /**
@@ -214,17 +221,36 @@ public class SlurmClient implements SchedulerClient {
      * @throws Exception
      */
     public List<JobStatus> getFinishedJobs() throws Exception {
-    	SshConnection sshConn = SshConnection.getInstance();
 
-        sshConn.connect();
         String sacctCmd = "sacct " +
         		" --format=JobID,Partition,JobName,User,state,Elapsed,NNodes,NodeList";
         sshConn.connect();
         String sacctResult = sshConn.executeCommand(sacctCmd);
 
-        sshConn.close();
-
-        return sacctResult2JobStatuses(sacctResult);
+        List<JobStatus> jobList = sacctResult2JobStatuses(sacctResult);
+        List<JobStatus> finishedJobList = new ArrayList<>();
+        for(JobStatus job : jobList){
+        	if(!job.getState().equalsIgnoreCase("RUNNING") && !job.getState().equalsIgnoreCase("PENDING")){
+        		finishedJobList.add(job);
+        	}
+        }
+        
+        return finishedJobList;
+    }
+    
+    public JobStat getJobStat(long jobId) throws Exception {
+    	
+    	JobStat jobStat = new JobStat();
+    	
+        sshConn.connect();
+        String sacctResult = sshConn.executeCommand("sacct "
+        		+ "--format=JobID,Partition,state,Elapsed,Start,End,AllocCPUS,AllocNodes --job " + jobId);
+        List<JobStat> jobStats = sacctResult2JobStats(sacctResult);
+        if(jobStats != null && !jobStats.isEmpty()){
+        	jobStat = jobStats.get(0);
+        }
+    	
+    	return jobStat;
     }
     
     /**
@@ -237,8 +263,6 @@ public class SlurmClient implements SchedulerClient {
     public JobStatus getStatus(long jobId) throws Exception {
 
         JobStatus jobStatus = new JobStatus();
-
-        SshConnection sshConn = SshConnection.getInstance();
 
         sshConn.connect();
         String squeueResult = sshConn.executeCommand("squeue --job " + jobId);
@@ -256,13 +280,12 @@ public class SlurmClient implements SchedulerClient {
             		+ "--format=JobID,Partition,JobName,User,state,Elapsed,NNodes,NodeList --job " + jobId;
             String sacctResult = sshConn.executeCommand(sacctCmd);
             jobStatuses = sacctResult2JobStatuses(sacctResult);
-            if (jobStatuses != null && jobStatuses.size() > 0) {
+            if (jobStatuses != null && !jobStatuses.isEmpty()) {
                 jobStatus = jobStatuses.get(0);
             }
 
         }
 
-        sshConn.close();
         return jobStatus;
 
     }
@@ -274,15 +297,56 @@ public class SlurmClient implements SchedulerClient {
      * @throws Exception
      */
     public void cancelJob(long jobId) throws Exception {
-        SshConnection sshConn = SshConnection.getInstance();
 
         sshConn.connect();
         sshConn.executeCommand("scancel " + jobId);
 
-        sshConn.close();
-
     }
-    
+
+    /**
+     * Parses a slurm string for job information from sacct command
+     *
+     * @param s
+     * @return
+     */
+    private List<JobStat> sacctResult2JobStats(String s) {
+    	/**
+    	 *       JobID  Partition      State    Elapsed               Start                 End  AllocCPUS AllocNodes 
+		 *------------ ---------- ---------- ---------- ------------------- ------------------- ---------- ----------
+		 *138330               RM  COMPLETED   00:00:02 2016-06-08T16:50:17 2016-06-08T16:50:19         28          1 
+		 *138330.batch             COMPLETED   00:00:02 2016-06-08T16:50:17 2016-06-08T16:50:19         28          1 
+    	 * 
+    	 */
+    	
+    	List<JobStat> JobStats = new ArrayList<>();
+    	Scanner scanner = new Scanner(s);
+        boolean secondLine = true;
+        while (scanner.hasNextLine()) {
+            if (secondLine) {
+                secondLine = false;
+                scanner.nextLine();
+                scanner.nextLine();
+                continue;
+            }
+            String line = scanner.nextLine();
+            JobStat js = line2JobStat(line);
+            if(js != null){
+            	JobStats.add(js);
+            }
+
+        }
+        scanner.close();
+        
+    	return JobStats;
+    }
+
+
+    /**
+     * Parses a slurm string for job information from sacct command
+     *
+     * @param s
+     * @return
+     */
     private List<JobStatus> sacctResult2JobStatuses(String s) {
     	/**
     	 *       JobID  Partition    JobName      User      State    Elapsed   NNodes        NodeList 
@@ -292,7 +356,7 @@ public class SlurmClient implements SchedulerClient {
     	 * 
     	 */
     	
-    	ArrayList<JobStatus> jobStatuses = new ArrayList<JobStatus>();
+    	List<JobStatus> jobStatuses = new ArrayList<>();
     	Scanner scanner = new Scanner(s);
         boolean secondLine = true;
         while (scanner.hasNextLine()) {
@@ -315,7 +379,7 @@ public class SlurmClient implements SchedulerClient {
     }
 
     /**
-     * Parses a slurm string for job information
+     * Parses a slurm string for job information from squeue command
      *
      * @param s
      * @return
@@ -326,7 +390,7 @@ public class SlurmClient implements SchedulerClient {
          *                     111189        LM run_RM2_  sczyrba  R    9:15:49      1 l004
          */
 
-        ArrayList<JobStatus> jobStatuses = new ArrayList<JobStatus>();
+        List<JobStatus> jobStatuses = new ArrayList<>();
         Scanner scanner = new Scanner(s);
         boolean firstLine = true;
         while (scanner.hasNextLine()) {
@@ -349,6 +413,33 @@ public class SlurmClient implements SchedulerClient {
     }
 
     /**
+     * Parses a single line for job stat information
+     *
+     * @param line
+     * @return
+     */
+    private JobStat line2JobStat(String line) {
+
+        line = line.trim();
+        String elements[] = line.split("\\s+");
+
+        if(elements == null || elements.length < 8)
+        	return null;
+        
+        JobStat jobStat = new JobStat();
+        jobStat.setJobId(elements[0]);
+        jobStat.setPartition(elements[1]);
+        jobStat.setState(elements[2]);
+        jobStat.setTime(elements[3]);
+        jobStat.setStart(elements[4]);
+        jobStat.setEnd(elements[5]);
+        jobStat.setAllocCPUS(elements[6]);
+        jobStat.setAllocNodes(elements[7]);
+
+        return jobStat;
+    }
+    
+    /**
      * Parses a single line for job status information
      *
      * @param line
@@ -356,8 +447,6 @@ public class SlurmClient implements SchedulerClient {
      */
     private JobStatus line2JobStatus(String line) {
 
-        //System.out.println(line);
-        //System.out.flush();
         line = line.trim();
         String elements[] = line.split("\\s+");
 

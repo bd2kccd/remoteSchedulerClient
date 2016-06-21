@@ -1,14 +1,14 @@
 #!/bin/sh
 #SBATCH --partition=RM
-#SBATCH --time=01:00:00
+#SBATCH --time=00:15:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
 #SBATCH --mem=120G
 # Memory per node specification is in MB. It is optional.
 # The default limit is 3000MB per core.
-#SBATCH --job-name="causal-cmd "$causalUser
-#SBATCH --output=causal-cmd-srun.out
-#SBATCH --mail-user=$email
+#SBATCH --job-name="causal-cmd_test"
+#SBATCH --output=test-srun.out
+#SBATCH --mail-user=chw20@pitt.edu
 #SBATCH --mail-type=ALL
 #Specifies that the job will be requeued after a node failure.
 #The default is that the job will not be requeued.
@@ -23,6 +23,7 @@ module load java7
 module list
 ulimit -s unlimited
 # The initial srun will trigger the SLURM prologue on the compute nodes.
-echo "Launch causal-cmd "$causalUser
-$cmd
+echo "Launch causal-cmd test"
+cd causal-cmd
+java -jar causal-cmd-5.3.0-SNAPSHOT-jar-with-dependencies.jar --algorithm fgs --data $inputFile  --depth -1 --output $outputFile --verbose
 echo "All Done!"

@@ -2,6 +2,9 @@ package edu.pitt.dbmi.ccd.connection;
 
 import com.jcraft.jsch.*;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 
@@ -13,15 +16,15 @@ import java.io.*;
  */
 public class SshConnection implements Connection {
 
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(SshConnection.class);
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SshConnection.class);
 
-	private String host;
-	private String username;
-	private String password;
-	private String privateKey;
-	private int port;
-	private String passphrase;
-	private String knownHosts;
+	private final String host;
+	private final String username;
+	private final String password;
+	private final String privateKey;
+	private final int port;
+	private final String passphrase;
+	private final String knownHosts;
 
 	private JSch jsch;
 	private Session session;
@@ -55,7 +58,7 @@ public class SshConnection implements Connection {
 		if (configuration.isLogging()) {
 			JSch.setLogger(new MyLogger());
 		}
-
+		
 		this.jsch = new JSch();
 
 	}
@@ -67,14 +70,16 @@ public class SshConnection implements Connection {
 	 */
 	public void connect() throws Exception {
 
-		session = jsch.getSession(username, host, port);
-		session.setConfig("StrictHostKeyChecking", "no");
-		session.setPassword(password);
+		if(session == null || !session.isConnected()){
+			session = jsch.getSession(username, host, port);
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.setPassword(password);
 
-		UserInfoImpl ui = new UserInfoImpl();
-		session.setUserInfo(ui);
+			UserInfoImpl ui = new UserInfoImpl();
+			session.setUserInfo(ui);
 
-		session.connect();
+			session.connect();
+		}
 
 	}
 
@@ -84,7 +89,9 @@ public class SshConnection implements Connection {
 	 */
 	public void close() {
 
-		session.disconnect();
+		if(session.isConnected()){
+			session.disconnect();
+		}
 
 	}
 
@@ -364,6 +371,8 @@ public class SshConnection implements Connection {
 
 		}
 
+		out.close();
+		channel.disconnect();
 		session.disconnect();
 
 	}

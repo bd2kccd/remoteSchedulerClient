@@ -4,6 +4,10 @@ import edu.pitt.dbmi.ccd.connection.slurm.JobStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 import java.util.Properties;
@@ -18,6 +22,9 @@ import static org.junit.Assert.assertNull;
 public class SlurmClientTest {
 
     private static long jobId;
+    
+    //@Autowired
+    //private SlurmClient client;
 
     @Test
     public void testSubmitJob() throws Exception {
@@ -75,7 +82,7 @@ public class SlurmClientTest {
     }
 
 
-    @Before
+   @Before
     public void setUp() throws Exception {
 
         SshConnection.getInstance();
