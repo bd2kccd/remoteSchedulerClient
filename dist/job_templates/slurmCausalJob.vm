@@ -2,7 +2,7 @@
 #SBATCH --partition=RM
 #SBATCH --time=01:00:00
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-node=28
 #SBATCH --mem=120G
 # Memory per node specification is in MB. It is optional.
 # The default limit is 3000MB per core.

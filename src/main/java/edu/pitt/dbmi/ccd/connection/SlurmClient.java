@@ -61,7 +61,7 @@ public class SlurmClient implements SchedulerClient {
     		String remoteScriptFileName, String localSource, String remoteDestination) throws Exception {
     	
     	//Script to create a user space if not existing
-    	if(!remoteFileExisted(remoteScriptFileName)){
+    	if(!remoteFileExistes(remoteScriptFileName)){
 
             // get the Template  */
             Template t = ve.getTemplate(dataDirTemplateName);
@@ -167,7 +167,7 @@ public class SlurmClient implements SchedulerClient {
      * @return True if file exists
      * @throws Exception
      */
-    public boolean remoteFileExisted(String remoteFileName) {
+    public boolean remoteFileExistes(String remoteFileName) {
 
         String lsResult;
 		try {
