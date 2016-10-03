@@ -18,105 +18,102 @@
  */
 package edu.pitt.dbmi.ccd.connection;
 
+import edu.pitt.dbmi.ccd.connection.slurm.JobStatus;
 import java.util.List;
 import java.util.Properties;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
-import edu.pitt.dbmi.ccd.connection.SlurmClient;
-import edu.pitt.dbmi.ccd.connection.slurm.JobStatus;
-
 /**
- * 
+ *
  * May 17, 2016 3:11:32 PM
- * 
+ *
  * @author Chirayu (Kong) Wongchokprasitti
  *
  */
 public class RunTest {
 
-	private static long jobId;
+    private static long jobId;
 
-	@Autowired
+    @Autowired
     private static SlurmClient client;
-	
-	/**
-	 * @param args
-	 * @throws Exception
-	 */
-	public static void main(String[] args) throws Exception {
-		// TODO Auto-generated method stub
-		//SlurmClient client = new SlurmClient();
 
-		Properties p = new Properties();
+    /**
+     * @param args
+     * @throws Exception
+     */
+    public static void main(String[] args) throws Exception {
+        // TODO Auto-generated method stub
+        //SlurmClient client = new SlurmClient();
 
-		System.out.println("===transferDataset===");
-		
-		p.setProperty("causalUser", "kong");
-		try {
-			client.uploadFile(
-					"/home/chirayu/slurm/job_templates/causalUserWorkspace.vm", 
-					p,"~/checkUserDir.sh","/home/chirayu/slurm/Retention.txt", 
-					"/pylon1/bi4s84p/chirayu/kong/Retention.txt");
-		} catch (Exception e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		
-		System.out.println("===testSubmitJob===");
+        Properties p = new Properties();
 
-		p.setProperty("inputFile", "/pylon1/bi4s84p/chirayu/kong/Retention.txt");
-		p.setProperty("outputFile", "fgs-retention-output");
-		try {
-			jobId = client.submitJob("/home/chirayu/slurm/job_templates/slurmCausalJob.vm", p, "~/testremotefile.sh");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        System.out.println("===transferDataset===");
 
-		System.out.println("job id " + jobId);
+        p.setProperty("causalUser", "kong");
+        try {
+            client.uploadFile(
+                    "/home/chirayu/slurm/job_templates/causalUserWorkspace.vm",
+                    p, "~/checkUserDir.sh", "/home/chirayu/slurm/Retention.txt",
+                    "/pylon1/bi4s84p/chirayu/kong/Retention.txt");
+        } catch (Exception e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
 
-		System.out.println("===testGetStatus===");
+        System.out.println("===testSubmitJob===");
 
-		JobStatus js;
-		try {
-			js = client.getStatus(jobId);
-			if (js != null) {
-				System.out.println(js.toString());
-			} else {
-				System.out.println("jobId: " + jobId + "'s status not found!");
-			}
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+        p.setProperty("inputFile", "/pylon1/bi4s84p/chirayu/kong/Retention.txt");
+        p.setProperty("outputFile", "fgs-retention-output");
+        try {
+            jobId = client.submitJob("/home/chirayu/slurm/job_templates/slurmCausalJob.vm", p, "~/testremotefile.sh");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-		System.out.println("===getQueueStatus===");
+        System.out.println("job id " + jobId);
 
-		List<JobStatus> jobStatuses;
-		try {
-			jobStatuses = client.getQueueStatus();
-			for (JobStatus j : jobStatuses) {
-				System.out.println(j.toString());
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        System.out.println("===testGetStatus===");
 
-		System.out.println("===getFinishedJobs===");
+        JobStatus js;
+        try {
+            js = client.getStatus(jobId);
+            if (js != null) {
+                System.out.println(js.toString());
+            } else {
+                System.out.println("jobId: " + jobId + "'s status not found!");
+            }
+        } catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
 
-		try {
-			jobStatuses = client.getFinishedJobs();
-			for (JobStatus j : jobStatuses) {
-				System.out.println(j.toString());
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        System.out.println("===getQueueStatus===");
 
-		/*System.out.println("===cancelJob===");
+        List<JobStatus> jobStatuses;
+        try {
+            jobStatuses = client.getQueueStatus();
+            for (JobStatus j : jobStatuses) {
+                System.out.println(j.toString());
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        System.out.println("===getFinishedJobs===");
+
+        try {
+            jobStatuses = client.getFinishedJobs();
+            for (JobStatus j : jobStatuses) {
+                System.out.println(j.toString());
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        /*System.out.println("===cancelJob===");
 
 		try {
 			client.cancelJob(jobId);
@@ -124,7 +121,6 @@ public class RunTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
-
-	}
+    }
 
 }

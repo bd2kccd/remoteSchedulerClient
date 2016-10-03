@@ -1,15 +1,13 @@
 package edu.pitt.dbmi.ccd.connection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Author : Jeremy Espino MD
- * Created  4/7/16 2:41 PM
+ * Author : Jeremy Espino MD Created 4/7/16 2:41 PM
  */
 public class Configuration {
 
@@ -72,7 +70,9 @@ public class Configuration {
         } catch (Exception e) {
             logger.error("Unable to read remote_scheduler_client.properties", e);
         } finally {
-            if (inputStream != null) inputStream.close();
+            if (inputStream != null) {
+                inputStream.close();
+            }
         }
         return prop;
     }
@@ -117,4 +117,3 @@ public class Configuration {
         return scratchDirectory;
     }
 }
-

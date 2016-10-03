@@ -22,20 +22,20 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * 
+ *
  * Jun 9, 2016 4:09:34 PM
- * 
+ *
  * @author Chirayu (Kong) Wongchokprasitti
  *
  */
 @SpringBootApplication
 public class RemoteSchedulerClientApplication {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		SpringApplication.run(RemoteSchedulerClientApplication.class, args);
-	}
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        SpringApplication.run(RemoteSchedulerClientApplication.class, args);
+    }
 
 }

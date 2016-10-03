@@ -19,83 +19,84 @@
 package edu.pitt.dbmi.ccd.connection.slurm;
 
 /**
- * 
+ *
  * Jun 8, 2016 6:17:44 PM
- * 
+ *
  * @author Chirayu (Kong) Wongchokprasitti
  *
  */
 public class JobStat {
-	String jobId;
-	String partition;
-	String state;
-	String time;
-	String start;
-	String end;
-	String allocCPUS;
-	String allocNodes;
 
-	public String getJobId() {
-		return jobId;
-	}
+    String jobId;
+    String partition;
+    String state;
+    String time;
+    String start;
+    String end;
+    String allocCPUS;
+    String allocNodes;
 
-	public void setJobId(String jobId) {
-		this.jobId = jobId;
-	}
+    public String getJobId() {
+        return jobId;
+    }
 
-	public String getPartition() {
-		return partition;
-	}
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
 
-	public void setPartition(String partition) {
-		this.partition = partition;
-	}
+    public String getPartition() {
+        return partition;
+    }
 
-	public String getState() {
-		return state;
-	}
+    public void setPartition(String partition) {
+        this.partition = partition;
+    }
 
-	public void setState(String state) {
-		this.state = state;
-	}
+    public String getState() {
+        return state;
+    }
 
-	public String getTime() {
-		return time;
-	}
+    public void setState(String state) {
+        this.state = state;
+    }
 
-	public void setTime(String time) {
-		this.time = time;
-	}
+    public String getTime() {
+        return time;
+    }
 
-	public String getStart() {
-		return start;
-	}
+    public void setTime(String time) {
+        this.time = time;
+    }
 
-	public void setStart(String start) {
-		this.start = start;
-	}
+    public String getStart() {
+        return start;
+    }
 
-	public String getEnd() {
-		return end;
-	}
+    public void setStart(String start) {
+        this.start = start;
+    }
 
-	public void setEnd(String end) {
-		this.end = end;
-	}
+    public String getEnd() {
+        return end;
+    }
 
-	public String getAllocCPUS() {
-		return allocCPUS;
-	}
+    public void setEnd(String end) {
+        this.end = end;
+    }
 
-	public void setAllocCPUS(String allocCPUS) {
-		this.allocCPUS = allocCPUS;
-	}
+    public String getAllocCPUS() {
+        return allocCPUS;
+    }
 
-	public String getAllocNodes() {
-		return allocNodes;
-	}
+    public void setAllocCPUS(String allocCPUS) {
+        this.allocCPUS = allocCPUS;
+    }
 
-	public void setAllocNodes(String allocNodes) {
-		this.allocNodes = allocNodes;
-	}
+    public String getAllocNodes() {
+        return allocNodes;
+    }
+
+    public void setAllocNodes(String allocNodes) {
+        this.allocNodes = allocNodes;
+    }
 }

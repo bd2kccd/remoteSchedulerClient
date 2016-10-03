@@ -1,10 +1,10 @@
 package edu.pitt.dbmi.ccd.connection.slurm;
 
 /**
- * Author : Jeremy Espino MD
- * Created  4/6/16 4:03 PM
+ * Author : Jeremy Espino MD Created 4/6/16 4:03 PM
  */
 public class JobStatus {
+
     String jobId;
     String partition;
     String name;
@@ -13,19 +13,19 @@ public class JobStatus {
     String time;
     String nodes;
     String nodelist;
-    
+
     @Override
     public String toString() {
-        return "JobStatus{" +
-                "jobId=" + jobId +
-                ", partition='" + partition + '\'' +
-                ", name='" + name + '\'' +
-                ", user='" + user + '\'' +
-                ", state='" + state + '\'' +
-                ", time='" + time + '\'' +
-                ", nodes=" + nodes +
-                ", nodelist='" + nodelist + '\'' +
-                '}';
+        return "JobStatus{"
+                + "jobId=" + jobId
+                + ", partition='" + partition + '\''
+                + ", name='" + name + '\''
+                + ", user='" + user + '\''
+                + ", state='" + state + '\''
+                + ", time='" + time + '\''
+                + ", nodes=" + nodes
+                + ", nodelist='" + nodelist + '\''
+                + '}';
     }
 
     public String getJobId() {
@@ -59,7 +59,6 @@ public class JobStatus {
     public void setNodelist(String nodelist) {
         this.nodelist = nodelist;
     }
-
 
     public String getPartition() {
         return partition;
