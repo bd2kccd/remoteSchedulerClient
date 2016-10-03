@@ -54,7 +54,7 @@ public class RunTest {
 		
 		p.setProperty("causalUser", "kong");
 		try {
-			client.uploadDataset(
+			client.uploadFile(
 					"/home/chirayu/slurm/job_templates/causalUserWorkspace.vm", 
 					p,"~/checkUserDir.sh","/home/chirayu/slurm/Retention.txt", 
 					"/pylon1/bi4s84p/chirayu/kong/Retention.txt");

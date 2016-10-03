@@ -57,7 +57,7 @@ public class SlurmClient implements SchedulerClient {
      * @param remoteDestination
      * @throws Exception
      */
-    public void uploadDataset(String dataDirTemplateName, Properties dataProperties, 
+    public void uploadFile(String dataDirTemplateName, Properties dataProperties, 
     		String remoteScriptFileName, String localSource, String remoteDestination) throws Exception {
     	
     	//Script to create a user space if not existing

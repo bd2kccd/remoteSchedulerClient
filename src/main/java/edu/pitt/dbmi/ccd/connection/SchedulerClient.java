@@ -13,7 +13,7 @@ public interface SchedulerClient {
 
 	public void downloadOutput(String remoteOutput, String localDestination) throws Exception;
 	
-	public void uploadDataset(String dataDirTemplateName, Properties dataProperties, 
+	public void uploadFile(String dataDirTemplateName, Properties dataProperties, 
     		String remoteScriptFileName, String localSource, String remoteDestination) throws Exception;
 	
     public long submitJob(String jobTemplateName, Properties jobProperties, String remoteFileName) throws Exception;
