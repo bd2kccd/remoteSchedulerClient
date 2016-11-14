@@ -1,8 +1,7 @@
 package edu.pitt.dbmi.ccd.connection;
 
 /**
- * Author : Jeremy Espino MD
- * Created  9/15/15 11:30 AM
+ * Author : Jeremy Espino MD Created 9/15/15 11:30 AM
  */
 public interface Connection {
 

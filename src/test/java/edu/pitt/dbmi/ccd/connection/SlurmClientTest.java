@@ -1,28 +1,12 @@
 package edu.pitt.dbmi.ccd.connection;
 
-import edu.pitt.dbmi.ccd.connection.slurm.JobStatus;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.List;
-import java.util.Properties;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 /**
- * Author : Jeremy Espino MD
- * Created  4/6/16 2:06 PM
+ * Author : Jeremy Espino MD Created 4/6/16 2:06 PM
  */
 public class SlurmClientTest {
 
     private static long jobId;
-    
+
     //@Autowired
     //private SlurmClient client;
 
@@ -35,7 +19,7 @@ public class SlurmClientTest {
 
         p.setProperty("inputFile", "Retention.txt");
         jobId = client.submitJob(
-        		"/Users/chw20/Documents/DBMI/remoteSchedulerClient/dist/job_templates/simpleFgs.vm", 
+        		"/Users/chw20/Documents/DBMI/remoteSchedulerClient/dist/job_templates/simpleFgs.vm",
         		p, "~/testremotefile.sh");
 
         System.out.println("job id " + jobId);
@@ -94,6 +78,4 @@ public class SlurmClientTest {
 
         SshConnection.getInstance().close();
     }*/
-
-
 }
