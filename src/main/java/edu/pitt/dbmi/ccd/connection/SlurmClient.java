@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Author : Jeremy Espino MD Created 4/1/16 11:50 AM Author : Chirayu (Kong)
- * Wongchokprasitti, PhD Modified 6/21/16 2:21 PM
+ * @author Jeremy Espino MD Created 4/1/16 11:50 AM 
+ * @author Chirayu Kong Wongchokprasitti, PhD Modified 6/21/16 2:21 PM
  */
 public class SlurmClient implements SchedulerClient {
 

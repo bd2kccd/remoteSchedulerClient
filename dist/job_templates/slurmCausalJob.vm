@@ -1,6 +1,6 @@
 #!/bin/sh
-#SBATCH --partition=RM
-#SBATCH --time=01:00:00
+#SBATCH --partition=$partition
+#SBATCH --time=$walltime
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=28
 #SBATCH --mem=120G
