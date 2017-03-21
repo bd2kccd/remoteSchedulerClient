@@ -19,7 +19,7 @@ echo "SLURMTMPDIR="\\$SLURMTMPDIR
 
 echo "working directory = "\\$SLURM_SUBMIT_DIR
 
-module load java7
+module load java
 module list
 ulimit -s unlimited
 # The initial srun will trigger the SLURM prologue on the compute nodes.
