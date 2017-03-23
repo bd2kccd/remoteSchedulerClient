@@ -3,7 +3,8 @@
 #SBATCH --time=$walltime
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=28
-#SBATCH --mem=120G
+# 120G -> RM & >= 128G for LM partition
+#SBATCH --mem=128G
 # Memory per node specification is in MB. It is optional.
 # The default limit is 3000MB per core.
 #SBATCH --job-name="causal-cmd "$causalUser
