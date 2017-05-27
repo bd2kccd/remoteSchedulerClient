@@ -4,7 +4,7 @@
 
     <groupId>edu.pitt.dbmi.isg</groupId>
     <artifactId>remoteSchedulerClient</artifactId>
-    <version>0.2.0</version>
+    <version>0.1.3-SNAPSHOT</version>
 
     <name>remoteSchedulerClient</name>
     <description>Center for Causal Discovery Remote Scheduler Client Application</description>
